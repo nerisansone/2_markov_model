@@ -25,7 +25,7 @@ void close_file (std::ifstream* file);
 std::string get_firstline (std::ifstream* file);
 std::string token_test_file (std::ifstream* file);
 std::string token_training_file (std::ifstream* file);
-//DA RIMUOVERE Alphabet build_alphabet (std::string file);
+//DA RIMUOVERE(SE NEWS SU ALFABETO E NEL CASO CAPIRE QUALE VERSIONE DA USARE) Alphabet build_alphabet (std::string file);
 Alphabet build_alphabet (Alphabet alphabet, std::string file);
 void build_model (int order, Model& model, std::string file);
 void markov_model(Markov_model& markov_m, unsigned int order, const std::string& training_file);
