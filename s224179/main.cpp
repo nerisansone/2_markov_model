@@ -53,6 +53,7 @@ int main (int argc, char *argv[]) {
         std::cout << test_files[i] << std::endl;
     }*/
     std::string training_str[argc-1]; 
+    std::string test_str[argc-1]; 
 
     for (size_t i = 0; i < training_files.size(); i++) {
 
@@ -69,8 +70,22 @@ int main (int argc, char *argv[]) {
         //build_alphabet(training_str[i]);
     }
 
-    /* for (size_t i = 0; i < training_files.size(); i++) {
-        std::cout << training_str[i] << std::endl;
+    for (size_t i = 0; i < training_files.size(); i++) {
+
+        std::ifstream test(test_files[i]);
+
+        while (getline(test, line)) {
+            test_str[i] += line; //+ '\n';
+        }
+        test_str[i].erase(std::remove_if(test_str[i].begin(), test_str[i].end(), ::isspace), test_str[i].end());
+        //std::cout << training_str[i] << std::endl;
+        //DA RIMUOVERE
+        //build_alphabet(training_str[i]);
+    }
+
+
+/*     for (size_t i = 0; i < test_files.size(); i++) {
+        std::cout << "Test: " << test_str[i] << std::endl;
     } */
     
     for (size_t i = 0; i < training_files.size(); i++) {
@@ -90,8 +105,8 @@ int main (int argc, char *argv[]) {
         std::cout << "Model " << names[i] << std::endl;
         std::cout << "Order: " << models[i].order << std::endl;
         for (int j : models[i].alphabet) {
-            std::cout << "Alphabetfin: " << j << "\n";
-        }  
+            std::cout << "Alphabetfin: " << static_cast<char>(j) << "\n";
+        }
         for (const auto& entry : models[i].model) {
             std::cout << entry.first << ": " << entry.second << std::endl;
         }
@@ -101,34 +116,40 @@ int main (int argc, char *argv[]) {
     std::vector<double> results;
 
     for (size_t i = 0; i < test_files.size(); i++) {
-        double max_likelihood = 300.0;
+        double max_likelihood = -std::numeric_limits<double>::infinity();
         int max_likelihood_model_index = -1;
 
         for (size_t j = 0; j < models.size(); j++) {
             //std::cout << "Testing " << test_files[i] << " with model " << names[j] << std::endl;
             try {
-                double res = likelihood(models[j], test_files[i]);
-                /* std::cout << "Model " << names[j] << std::endl;
+                /* std::cout << "Testing: " << test_str[i] << " with " << std::endl;
+                
+                std::cout << "Model: " << names[j] << std::endl;
                 std::cout << "Order: " << models[j].order << std::endl;
                 std::cout << "Alphabet:" << std::endl;
+                
                 for (const auto& entry : models[j].alphabet) {
                     std::cout << entry << std::endl;
-                }   
-                for (const auto& entry : models[i].model) {
+                }
+                
+                for (const auto& entry : models[j].model) {
                     std::cout << entry.first << ": " << entry.second << std::endl;
-                } */
+                } */ 
+                double res = likelihood(models[j], test_str[i]);
                 //std::cout << "likelihood: " << res << std::endl;
-                if (res < max_likelihood) {
+                if (res > max_likelihood) {
                     max_likelihood = res;
                     max_likelihood_model_index = j;
                 }
                 std::cout << names[j] << ": " << res << "\n" << std::endl;
             } catch (const std::domain_error& e) {
                 results.push_back(-1.0); // Use -1.0 to indicate test data is incompatible
-                std::cout << names[j] << ": -" << "\n" << std::endl;
+                //std::cout << names[j] << ": -" << "\n" << std::endl;
+                std::cout << "ERORRE" << std::endl;
             } catch (const std::length_error& e) {
                 results.push_back(-1.0); // Use -1.0 to indicate test data is incompatible
-                std::cout << names[j] << ": -" << "\n" << std::endl;
+                //std::cout << names[j] << ": -" << "\n" << std::endl;
+                //std::cout << "ERORRE" << std::endl;
             }
         }
         //std::cout << "max_likelihood: " << max_likelihood << std::endl;

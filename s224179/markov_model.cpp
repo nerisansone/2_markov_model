@@ -234,29 +234,33 @@ void markov_model(Markov_model& markov_m, unsigned int order, const std::string&
     //std::cout << "Laplace: " << laplace << std::endl;
     return laplace;
 } */
-double laplace (const Markov_model& markov_m,const std::string& string) {
+double laplace (const Markov_model& markov_m,const std::string& str) {
     
-    if (string.length() < markov_m.order) {
+    if (str.length() < markov_m.order) {
         throw std::length_error("[LAPLACE ERROR]: Incompatible input data and order size");
     }
-
-    for (size_t i = 0; i < string.length(); i++) {
-        if (markov_m.alphabet.find(string[i]) != markov_m.alphabet.end()) {
+/* 
+    for (size_t i = 0; i < str.length(); i++) {
+        if (markov_m.alphabet.find(str[i]) != markov_m.alphabet.end()) {
             throw std::domain_error("[LAPLACE ERROR]: String contains illegal characters.");
         }
-    }
+    } */
 
     double res = 0.0;
-    std::string substring = string.substr(0, string.length() - 1);
-    auto iterString = markov_m.model.find(string);
+    std::string substring = str.substr(0, str.length() - 1);
+    auto iterString = markov_m.model.find(str);
     auto iterSubstring = markov_m.model.find(substring);
+    //std::cout << "String: " << substring << iterSubstring->second << std::endl;
 
     if (iterString != markov_m.model.end()) {
-        res = (iterString->second + 1.0) / (iterSubstring->second + markov_m.alphabet.size());
+        /* std::cout << "String: " << iterString->first << iterString->second << std::endl;
+        std::cout << "Substring: " << iterSubstring->first << iterSubstring->second << std::endl; */
+        res = (iterString->second + 1.0)/(iterSubstring->second + markov_m.alphabet.size());
     } else {
-        res = 1.0 / (iterSubstring->second + markov_m.alphabet.size());
+        //std::cout << "String: " << iterSubstring->first << iterSubstring->second << std::endl;
+        res = (1.0)/(iterSubstring->second + markov_m.alphabet.size());
     }
-
+    //std::cout << "Laplace: " << res << std::endl;
     return res;
 
 }
@@ -287,9 +291,15 @@ double likelihood(Markov_model& markov_m,const std::string& input_data) {
 
     double res = 0.0;
     std::string circ_input = input_data + input_data.substr(0, markov_m.order-1);
+    std::string substr;
+    /* std::cout << "Input length: " << input_data.length() << std::endl;
+    std::cout << "Circ input: " << circ_input << " fine" << std::endl; */
 
     for (size_t k = 0; k + markov_m.order <= input_data.length(); k++) {
-        res += std::log(laplace(markov_m, circ_input.substr(k, markov_m.order+1)));
+        substr = circ_input.substr(k, markov_m.order+1);
+        res += std::log(laplace(markov_m, substr));
+        //std::cout << "Substr: " << substr << std::endl;
+        //std::cout << "Res: " << res << std::endl;
     }
 
     return res;
